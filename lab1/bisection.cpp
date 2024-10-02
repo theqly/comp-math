@@ -183,6 +183,7 @@ std::optional<double> bisection::find_root(const ::cubic_equation &f,
     double f_mid = f.calc(mid);
 
     if (std::abs(f_mid) < epsilon) {
+      std::cout << "iteration: " << i << std::endl;
       return mid;
     }
 

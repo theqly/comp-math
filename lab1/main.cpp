@@ -22,12 +22,15 @@ int main(int argc, char **argv) {
 
   const cubic_equation f(a, b, c);
 
-  std::vector<double> roots = f.get_roots();
+  /*std::vector<double> roots = f.get_roots();
 
   // Вывод корней
   for (const auto &root : roots) {
     std::cout << "Root: " << root << std::endl;
-  }
+  }*/
+
+  std::cout << "root: " << bisection::find_root(f, -2, -1).value() << std::endl;
+
 
   return 0;
 }
