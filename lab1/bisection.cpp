@@ -95,11 +95,23 @@ std::vector<double> cubic_equation::get_roots() const {
 
     //const double zyuzya = calc(-(derivative_roots[0]/3));
     const double zyuzya = calc(-(a/3));
+    double root;
 
     if (std::abs(zyuzya) <= epsilon) {
-      roots.push_back(zyuzya);
-      roots.push_back(zyuzya);
-      roots.push_back(zyuzya);
+      root = -(a/3);
+      roots.push_back(root);
+      roots.push_back(root);
+      roots.push_back(root);
+    } else if(zyuzya < -epsilon){
+      root = bisection::find_root(*this, zyuzya, std::numeric_limits<double>::infinity()).value();
+      roots.push_back(root);
+      roots.push_back(root);
+      roots.push_back(root);
+    } else {
+      root = bisection::find_root(*this, std::numeric_limits<double>::infinity(), zyuzya).value();
+      roots.push_back(root);
+      roots.push_back(root);
+      roots.push_back(root);
     }
 
     break;
@@ -148,11 +160,16 @@ std::vector<double> cubic_equation::get_roots() const {
 
       const double root = bisection::find_root(*this, std::numeric_limits<double>::infinity(), alpha).value_or(-666);
       roots.push_back(root);
-    } else {
+    } else if(f_alpha < -epsilon && f_beta < -epsilon) {
 
       std::cout << "case 5" << std::endl;
 
       const double root = bisection::find_root(*this, f_beta, std::numeric_limits<double>::infinity()).value_or(-666);
+      roots.push_back(root);
+    } else {
+      const double root = (alpha + beta) / 2;
+      roots.push_back(root);
+      roots.push_back(root);
       roots.push_back(root);
     }
 
@@ -183,6 +200,7 @@ std::optional<double> bisection::find_root(const ::cubic_equation &f,
     double f_mid = f.calc(mid);
 
     if (std::abs(f_mid) < epsilon) {
+      std::cout << "iterations: " << i << std::endl;
       return mid;
     }
 
