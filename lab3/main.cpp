@@ -79,7 +79,7 @@ void print_matrix(const long double* matrix, const int N) {
 
 void print_roots(const long double* roots, const int N) {
   for (int i = 0; i < N; ++i) {
-    std::cout << std::setprecision(9) << roots[i] << " ";
+    std::cout << std::setprecision(9) << roots[i] << " \n";
   }
 }
 
