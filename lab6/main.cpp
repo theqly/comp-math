@@ -41,10 +41,11 @@ double trapezoid_method(const int N, const double delta) {
 double parabola_method(const int N, const double delta) {
     double S = 0.0;
     const double h = delta / 2;
-    double xi = a;
+
     for(int i = 0; i < N; ++i) {
+        double xi = a + i*delta;
+
         const double Si = h * (f(xi) + f(xi + 2*h) + 4*f(xi +h)) / 3;
-        xi += delta;
         S += Si;
     }
     return S;
@@ -53,10 +54,9 @@ double parabola_method(const int N, const double delta) {
 double quadrature_method(const int N, const double delta) {
     double S = 0.0;
     const double h = delta / 6;
-    double xi = a;
     for(int i = 0; i < N; ++i) {
+        double xi = a + i*delta;
         const double Si = ((3 * h) / 4) * (f(xi) + 3*(f(xi+2*h) + f(xi+4*h)) + f(xi+6*h));
-        xi += delta;
         S += Si;
     }
     return S;
