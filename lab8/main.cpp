@@ -126,18 +126,22 @@ data_j so(const data_j& zero, const double h) {
   return result;
 }
 
-data_j to(const data_j& zero, const double h) {
+data_j to(const data_j& zero, double h) {
   data_j result;
   result.j = 1;
   result.x = zero.x + h;
-  result.y1 = zero.y1 * (std::cos(zero.x)*h*(5 - 2*h*std::cos(result.x + h)) - 5*std::cos(result.x + h) + 12)
-              /(4*(std::cos(result.x)*h*(h*std::cos(result.x + h) - 2) - std::cos(result.x + h) +3));
+  result.y1 = zero.y1 * ((12 + 5*h*std::cos(zero.x)) / (h*std::cos(zero.x + 2*h)) - ((3 + h*std::cos(zero.x)) / (3 - h * std::cos(zero.x + 2*h))))
+                / (((4*h*std::cos(zero.x + h)) / (3 - h*std::cos(zero.x + h*2))) + ((12 - 8*h*std::cos(zero.x + h)) / (h*std::cos(zero.x+h*2))));
 
-  result.y2 = zero.y1 * (std::cos(zero.x)*(h/3)*(5 - 2*(h/3)*std::cos(result.x + (h/3))) - 5*std::cos(result.x + (h/3)) + 12)
-              /(4*(std::cos(result.x)*(h/3)*((h/3)*std::cos(result.x + (h/3)) - 2) - std::cos(result.x + (h/3)) +3));
+  h /= 3;
 
-  result.y3 = zero.y1 * (std::cos(zero.x)*(h/9)*(5 - 2*(h/9)*std::cos(result.x + (h/9))) - 5*std::cos(result.x + (h/9)) + 12)
-              /(4*(std::cos(result.x)*(h/9)*((h/9)*std::cos(result.x + (h/9)) - 2) - std::cos(result.x + (h/9)) +3));
+  result.y2 = zero.y2 * ((12 + 5*h*std::cos(zero.x)) / (h*std::cos(zero.x + 2*h)) - ((3 + h*std::cos(zero.x)) / (3 - h * std::cos(zero.x + 2*h))))
+                / (((4*h*std::cos(zero.x + h)) / (3 - h*std::cos(zero.x + h*2))) + ((12 - 8*h*std::cos(zero.x + h)) / (h*std::cos(zero.x+h*2))));
+
+  h /= 3;
+
+  result.y3 = zero.y3 * ((12 + 5*h*std::cos(zero.x)) / (h*std::cos(zero.x + 2*h)) - ((3 + h*std::cos(zero.x)) / (3 - h * std::cos(zero.x + 2*h))))
+                / (((4*h*std::cos(zero.x + h)) / (3 - h*std::cos(zero.x + h*2))) + ((12 - 8*h*std::cos(zero.x + h)) / (h*std::cos(zero.x+h*2))));
 
   result.y_ex = y(result.x);
   result.delta = std::abs(result.y_ex - result.y1);
@@ -153,7 +157,7 @@ std::vector<data_j> fourth_order(const double a, const double b, double h) {
   std::vector<data_j> result(n1);
 
   result[0] = {0, a, y(a), y(a), y(a), y(a), 0, 0};
-  result[1] = fo(result[0], h);
+  result[1] = to(result[0], h);
 
   double y2[n2], y3[n3];
 
@@ -165,19 +169,25 @@ std::vector<data_j> fourth_order(const double a, const double b, double h) {
     double x = a + j * h;
     result[j].j = j;
     result[j].x = x;
-    result[j].y1 = (result[j-2].y1*(3 + h * std::cos(x-2*h)) + 4 * h * result[j-1].y1 * std::cos(x - h))
-                  /(3 - h * std::cos(x-2*h));
+    result[j].y1 = (result[j-2].y1*(3 + h * std::cos(a + (j-2) * h)) + 4 * h * result[j-1].y1 * std::cos(a + (j-1) * h))
+                  /(3 - h * std::cos(x));
   }
+
+  h /= 3;
+
   for (int j = 2; j < n2; j++) {
-    double x = a + j * (h/3);
-    y2[j] = (y2[j-2]*(3 + (h/3) * std::cos(x-2*(h/3))) + 4 * (h/3) * y2[j-1] * std::cos(x - (h/3)))
-                  /(3 - (h/3) * std::cos(x-2*(h/3)));
+    double x = a + j * h;
+    y2[j] = (y2[j-2]*(3 + h * std::cos(a + (j-2) * h)) + 4 * h * y2[j-1] * std::cos(a + (j-1) * h))
+                  /(3 - h * std::cos(x));
     if(j % 3 == 0) result[j/3].y2 = y2[j];
   }
+
+  h /= 3;
+
   for (int j = 2; j < n3; j++) {
-    double x = a + j * (h/9);
-    y3[j] = (y2[j-2]*(3 + (h/9) * std::cos(x-2*(h/9))) + 4 * (h/9) * y2[j-1] * std::cos(x - (h/9)))
-                  /(3 - (h/9) * std::cos(x-2*(h/9)));
+    double x = a + j * h;
+    y3[j] = (y3[j-2]*(3 + h * std::cos(a + (j-2) * h)) + 4 * h * y3[j-1] * std::cos(a + (j-1) * h))
+                  /(3 - h * std::cos(x));
     if(j % 9 == 0) result[j/9].y3 = y3[j];
   }
 
